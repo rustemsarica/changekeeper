@@ -53,7 +53,6 @@ pub fn changed_files() -> Result<Vec<PathBuf>> {
         if line.len() < 3 {
             continue;
         }
-
         let path = line[2..].trim();
 
         if !path.is_empty() {

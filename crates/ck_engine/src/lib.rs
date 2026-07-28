@@ -2,6 +2,9 @@ pub mod config;
 pub mod models;
 pub mod save;
 pub mod fs;
+pub mod list;
+pub mod show;
+pub mod restore;
 
 use anyhow::Result;
 use std::path::PathBuf;
