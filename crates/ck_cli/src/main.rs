@@ -125,7 +125,6 @@ fn main() -> Result<()> {
 
             println!("✔ Restore completed");
             println!();
-
             for file in restored {
                 println!(" - {}", file.display());
             }
