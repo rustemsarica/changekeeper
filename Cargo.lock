@@ -123,19 +123,12 @@ name = "ck"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "ck_app",
  "ck_config",
+ "ck_engine",
  "ck_fs",
  "ck_git",
  "ck_models",
  "clap",
-]
-
-[[package]]
-name = "ck_app"
-version = "0.1.0"
-dependencies = [
- "anyhow",
 ]
 
 [[package]]
@@ -146,6 +139,13 @@ dependencies = [
  "directories",
  "serde",
  "serde_json",
+]
+
+[[package]]
+name = "ck_engine"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
 ]
 
 [[package]]

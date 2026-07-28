@@ -1,17 +1,100 @@
-   0.020834834s  INFO prepare_target{force=false package_id=ck v0.1.0 (/Users/rustem/Desktop/projects/changekeeper/crates/ck_cli) target="ck"}: cargo::core::compiler::fingerprint: stale: changed "/Users/rustem/Desktop/projects/changekeeper/crates/ck_models/src/package.rs"
-   0.020844292s  INFO prepare_target{force=false package_id=ck v0.1.0 (/Users/rustem/Desktop/projects/changekeeper/crates/ck_cli) target="ck"}: cargo::core::compiler::fingerprint:           (vs) "/Users/rustem/Desktop/projects/changekeeper/target/debug/.fingerprint/ck_models-40c82e633eec5c5d/dep-lib-ck_models"
-   0.020846917s  INFO prepare_target{force=false package_id=ck v0.1.0 (/Users/rustem/Desktop/projects/changekeeper/crates/ck_cli) target="ck"}: cargo::core::compiler::fingerprint:                FileTime { seconds: 1785228702, nanos: 506272765 } < FileTime { seconds: 1785228727, nanos: 100145361 }
-   0.021292542s  INFO prepare_target{force=false package_id=ck v0.1.0 (/Users/rustem/Desktop/projects/changekeeper/crates/ck_cli) target="ck"}: cargo::core::compiler::fingerprint: fingerprint dirty for ck v0.1.0 (/Users/rustem/Desktop/projects/changekeeper/crates/ck_cli)/Check { test: false }/TargetInner { name: "ck", doc: true, ..: with_path("/Users/rustem/Desktop/projects/changekeeper/crates/ck_cli/src/main.rs", Edition2024) }
-   0.021300209s  INFO prepare_target{force=false package_id=ck v0.1.0 (/Users/rustem/Desktop/projects/changekeeper/crates/ck_cli) target="ck"}: cargo::core::compiler::fingerprint:     dirty: FsStatusOutdated(StaleDepFingerprint { name: "ck_models" })
-   0.023154750s  INFO prepare_target{force=false package_id=ck_models v0.1.0 (/Users/rustem/Desktop/projects/changekeeper/crates/ck_models) target="ck_models"}: cargo::core::compiler::fingerprint: fingerprint dirty for ck_models v0.1.0 (/Users/rustem/Desktop/projects/changekeeper/crates/ck_models)/Check { test: false }/TargetInner { name_inferred: true, ..: lib_target("ck_models", ["lib"], "/Users/rustem/Desktop/projects/changekeeper/crates/ck_models/src/lib.rs", Edition2024) }
-   0.023161167s  INFO prepare_target{force=false package_id=ck_models v0.1.0 (/Users/rustem/Desktop/projects/changekeeper/crates/ck_models) target="ck_models"}: cargo::core::compiler::fingerprint:     dirty: FsStatusOutdated(StaleItem(ChangedFile { reference: "/Users/rustem/Desktop/projects/changekeeper/target/debug/.fingerprint/ck_models-40c82e633eec5c5d/dep-lib-ck_models", reference_mtime: FileTime { seconds: 1785228702, nanos: 506272765 }, stale: "/Users/rustem/Desktop/projects/changekeeper/crates/ck_models/src/package.rs", stale_mtime: FileTime { seconds: 1785228727, nanos: 100145361 } }))
-   0.023970125s  INFO prepare_target{force=false package_id=ck v0.1.0 (/Users/rustem/Desktop/projects/changekeeper/crates/ck_cli) target="ck"}: cargo::core::compiler::fingerprint: fingerprint dirty for ck v0.1.0 (/Users/rustem/Desktop/projects/changekeeper/crates/ck_cli)/Check { test: true }/TargetInner { name: "ck", doc: true, ..: with_path("/Users/rustem/Desktop/projects/changekeeper/crates/ck_cli/src/main.rs", Edition2024) }
-   0.023975709s  INFO prepare_target{force=false package_id=ck v0.1.0 (/Users/rustem/Desktop/projects/changekeeper/crates/ck_cli) target="ck"}: cargo::core::compiler::fingerprint:     dirty: FsStatusOutdated(StaleDepFingerprint { name: "ck_models" })
-   0.024413125s  INFO prepare_target{force=false package_id=ck_models v0.1.0 (/Users/rustem/Desktop/projects/changekeeper/crates/ck_models) target="ck_models"}: cargo::core::compiler::fingerprint: stale: changed "/Users/rustem/Desktop/projects/changekeeper/crates/ck_models/src/package.rs"
-   0.024419209s  INFO prepare_target{force=false package_id=ck_models v0.1.0 (/Users/rustem/Desktop/projects/changekeeper/crates/ck_models) target="ck_models"}: cargo::core::compiler::fingerprint:           (vs) "/Users/rustem/Desktop/projects/changekeeper/target/debug/.fingerprint/ck_models-74d6ee01c07c00cd/dep-test-lib-ck_models"
-   0.024420750s  INFO prepare_target{force=false package_id=ck_models v0.1.0 (/Users/rustem/Desktop/projects/changekeeper/crates/ck_models) target="ck_models"}: cargo::core::compiler::fingerprint:                FileTime { seconds: 1785228702, nanos: 506291724 } < FileTime { seconds: 1785228727, nanos: 100145361 }
-   0.024455542s  INFO prepare_target{force=false package_id=ck_models v0.1.0 (/Users/rustem/Desktop/projects/changekeeper/crates/ck_models) target="ck_models"}: cargo::core::compiler::fingerprint: fingerprint dirty for ck_models v0.1.0 (/Users/rustem/Desktop/projects/changekeeper/crates/ck_models)/Check { test: true }/TargetInner { name_inferred: true, ..: lib_target("ck_models", ["lib"], "/Users/rustem/Desktop/projects/changekeeper/crates/ck_models/src/lib.rs", Edition2024) }
-   0.024459125s  INFO prepare_target{force=false package_id=ck_models v0.1.0 (/Users/rustem/Desktop/projects/changekeeper/crates/ck_models) target="ck_models"}: cargo::core::compiler::fingerprint:     dirty: FsStatusOutdated(StaleItem(ChangedFile { reference: "/Users/rustem/Desktop/projects/changekeeper/target/debug/.fingerprint/ck_models-74d6ee01c07c00cd/dep-test-lib-ck_models", reference_mtime: FileTime { seconds: 1785228702, nanos: 506291724 }, stale: "/Users/rustem/Desktop/projects/changekeeper/crates/ck_models/src/package.rs", stale_mtime: FileTime { seconds: 1785228727, nanos: 100145361 } }))
-    Checking ck_models v0.1.0 (/Users/rustem/Desktop/projects/changekeeper/crates/ck_models)
+   0.019145625s  INFO prepare_target{force=false package_id=ck v0.1.0 (/Users/rustem/Desktop/projects/changekeeper/crates/ck_cli) target="ck"}: cargo::core::compiler::fingerprint: fingerprint error for ck v0.1.0 (/Users/rustem/Desktop/projects/changekeeper/crates/ck_cli)/Check { test: false }/TargetInner { name: "ck", doc: true, ..: with_path("/Users/rustem/Desktop/projects/changekeeper/crates/ck_cli/src/main.rs", Edition2024) }
+   0.019162416s  INFO prepare_target{force=false package_id=ck v0.1.0 (/Users/rustem/Desktop/projects/changekeeper/crates/ck_cli) target="ck"}: cargo::core::compiler::fingerprint:     err: failed to read `/Users/rustem/Desktop/projects/changekeeper/target/debug/.fingerprint/ck-55f1cc325c8ac21d/bin-ck`
+
+Caused by:
+    No such file or directory (os error 2)
+
+Stack backtrace:
+   0: std::backtrace::Backtrace::create
+   1: cargo_util::paths::read_bytes
+   2: cargo_util::paths::read
+   3: cargo::core::compiler::fingerprint::_compare_old_fingerprint
+   4: cargo::core::compiler::fingerprint::prepare_target
+   5: cargo::core::compiler::compile
+   6: <cargo::core::compiler::build_runner::BuildRunner>::compile
+   7: cargo::ops::cargo_compile::compile_ws
+   8: cargo::ops::cargo_compile::compile_with_exec
+   9: cargo::ops::cargo_compile::compile
+  10: cargo::commands::check::exec
+  11: <cargo::cli::Exec>::exec
+  12: cargo::main
+  13: std::sys::backtrace::__rust_begin_short_backtrace::<fn(), ()>
+  14: std::rt::lang_start::<()>::{closure#0}
+  15: std::rt::lang_start_internal
+  16: _main
+   0.022425541s  INFO prepare_target{force=false package_id=ck_engine v0.1.0 (/Users/rustem/Desktop/projects/changekeeper/crates/ck_engine) target="ck_engine"}: cargo::core::compiler::fingerprint: fingerprint error for ck_engine v0.1.0 (/Users/rustem/Desktop/projects/changekeeper/crates/ck_engine)/Check { test: false }/TargetInner { name_inferred: true, ..: lib_target("ck_engine", ["lib"], "/Users/rustem/Desktop/projects/changekeeper/crates/ck_engine/src/lib.rs", Edition2024) }
+   0.022432291s  INFO prepare_target{force=false package_id=ck_engine v0.1.0 (/Users/rustem/Desktop/projects/changekeeper/crates/ck_engine) target="ck_engine"}: cargo::core::compiler::fingerprint:     err: failed to read `/Users/rustem/Desktop/projects/changekeeper/target/debug/.fingerprint/ck_engine-152d6be4b4827833/lib-ck_engine`
+
+Caused by:
+    No such file or directory (os error 2)
+
+Stack backtrace:
+   0: std::backtrace::Backtrace::create
+   1: cargo_util::paths::read_bytes
+   2: cargo_util::paths::read
+   3: cargo::core::compiler::fingerprint::_compare_old_fingerprint
+   4: cargo::core::compiler::fingerprint::prepare_target
+   5: cargo::core::compiler::compile
+   6: cargo::core::compiler::compile
+   7: <cargo::core::compiler::build_runner::BuildRunner>::compile
+   8: cargo::ops::cargo_compile::compile_ws
+   9: cargo::ops::cargo_compile::compile_with_exec
+  10: cargo::ops::cargo_compile::compile
+  11: cargo::commands::check::exec
+  12: <cargo::cli::Exec>::exec
+  13: cargo::main
+  14: std::sys::backtrace::__rust_begin_short_backtrace::<fn(), ()>
+  15: std::rt::lang_start::<()>::{closure#0}
+  16: std::rt::lang_start_internal
+  17: _main
+   0.023412333s  INFO prepare_target{force=false package_id=ck v0.1.0 (/Users/rustem/Desktop/projects/changekeeper/crates/ck_cli) target="ck"}: cargo::core::compiler::fingerprint: fingerprint error for ck v0.1.0 (/Users/rustem/Desktop/projects/changekeeper/crates/ck_cli)/Check { test: true }/TargetInner { name: "ck", doc: true, ..: with_path("/Users/rustem/Desktop/projects/changekeeper/crates/ck_cli/src/main.rs", Edition2024) }
+   0.023421500s  INFO prepare_target{force=false package_id=ck v0.1.0 (/Users/rustem/Desktop/projects/changekeeper/crates/ck_cli) target="ck"}: cargo::core::compiler::fingerprint:     err: failed to read `/Users/rustem/Desktop/projects/changekeeper/target/debug/.fingerprint/ck-3c5fc94760da2611/test-bin-ck`
+
+Caused by:
+    No such file or directory (os error 2)
+
+Stack backtrace:
+   0: std::backtrace::Backtrace::create
+   1: cargo_util::paths::read_bytes
+   2: cargo_util::paths::read
+   3: cargo::core::compiler::fingerprint::_compare_old_fingerprint
+   4: cargo::core::compiler::fingerprint::prepare_target
+   5: cargo::core::compiler::compile
+   6: <cargo::core::compiler::build_runner::BuildRunner>::compile
+   7: cargo::ops::cargo_compile::compile_ws
+   8: cargo::ops::cargo_compile::compile_with_exec
+   9: cargo::ops::cargo_compile::compile
+  10: cargo::commands::check::exec
+  11: <cargo::cli::Exec>::exec
+  12: cargo::main
+  13: std::sys::backtrace::__rust_begin_short_backtrace::<fn(), ()>
+  14: std::rt::lang_start::<()>::{closure#0}
+  15: std::rt::lang_start_internal
+  16: _main
+   0.023698208s  INFO prepare_target{force=false package_id=ck_engine v0.1.0 (/Users/rustem/Desktop/projects/changekeeper/crates/ck_engine) target="ck_engine"}: cargo::core::compiler::fingerprint: fingerprint error for ck_engine v0.1.0 (/Users/rustem/Desktop/projects/changekeeper/crates/ck_engine)/Check { test: true }/TargetInner { name_inferred: true, ..: lib_target("ck_engine", ["lib"], "/Users/rustem/Desktop/projects/changekeeper/crates/ck_engine/src/lib.rs", Edition2024) }
+   0.023701875s  INFO prepare_target{force=false package_id=ck_engine v0.1.0 (/Users/rustem/Desktop/projects/changekeeper/crates/ck_engine) target="ck_engine"}: cargo::core::compiler::fingerprint:     err: failed to read `/Users/rustem/Desktop/projects/changekeeper/target/debug/.fingerprint/ck_engine-59918e757c041406/test-lib-ck_engine`
+
+Caused by:
+    No such file or directory (os error 2)
+
+Stack backtrace:
+   0: std::backtrace::Backtrace::create
+   1: cargo_util::paths::read_bytes
+   2: cargo_util::paths::read
+   3: cargo::core::compiler::fingerprint::_compare_old_fingerprint
+   4: cargo::core::compiler::fingerprint::prepare_target
+   5: cargo::core::compiler::compile
+   6: <cargo::core::compiler::build_runner::BuildRunner>::compile
+   7: cargo::ops::cargo_compile::compile_ws
+   8: cargo::ops::cargo_compile::compile_with_exec
+   9: cargo::ops::cargo_compile::compile
+  10: cargo::commands::check::exec
+  11: <cargo::cli::Exec>::exec
+  12: cargo::main
+  13: std::sys::backtrace::__rust_begin_short_backtrace::<fn(), ()>
+  14: std::rt::lang_start::<()>::{closure#0}
+  15: std::rt::lang_start_internal
+  16: _main
+    Checking ck_engine v0.1.0 (/Users/rustem/Desktop/projects/changekeeper/crates/ck_engine)
     Checking ck v0.1.0 (/Users/rustem/Desktop/projects/changekeeper/crates/ck_cli)
-    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.11s
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.17s
