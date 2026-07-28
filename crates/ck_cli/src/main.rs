@@ -14,19 +14,7 @@ struct Cli {
 enum Commands {
     Init,
 
-    Save {
-        name: String,
-    },
-
-    List,
-
-    Show {
-        name: String,
-    },
-
-    Restore {
-        name: String,
-    },
+    Save,
 }
 
 fn main() -> Result<()> {
@@ -34,23 +22,37 @@ fn main() -> Result<()> {
 
     match cli.command {
         Commands::Init => {
-            println!("init");
+            let result = ck_engine::init()?;
+
+            if result.created {
+                println!("✔ Configuration created");
+            } else {
+                println!("✔ Configuration already exists");
+            }
+
+            println!();
+            println!("Config : {}", result.config_file.display());
+            println!("Storage: {}", result.config.storage.display());
         }
 
-        Commands::Save { name } => {
-            println!("save: {name}");
-        }
+        Commands::Save => {
+            let config = ck_engine::config::load()?;
 
-        Commands::List => {
-            println!("list");
-        }
+            let root = ck_git::repository_root()?;
+            let branch = ck_git::current_branch()?;
+            let commit = ck_git::current_commit()?;
 
-        Commands::Show { name } => {
-            println!("show: {name}");
-        }
+            let changed_files = ck_git::changed_files()?;
 
-        Commands::Restore { name } => {
-            println!("restore: {name}");
+            let package = ck_engine::save(
+                config.storage,
+                root,
+                branch,
+                commit,
+                changed_files,
+            )?;
+            println!("✔ Change saved");
+            println!("{}", package.display());
         }
     }
 
