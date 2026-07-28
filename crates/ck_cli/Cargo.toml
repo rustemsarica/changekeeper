@@ -9,7 +9,4 @@ anyhow.workspace = true
 clap.workspace = true
 
 ck_engine = { path = "../ck_engine" }
-ck_config = { path = "../ck_config" }
 ck_git = { path = "../ck_git" }
-ck_fs = { path = "../ck_fs" }
-ck_models = { path = "../ck_models" }

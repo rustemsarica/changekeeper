@@ -4,10 +4,7 @@ resolver = "2"
 members = [
     "crates/ck_cli",
     "crates/ck_engine",
-    "crates/ck_config",
-    "crates/ck_git",
-    "crates/ck_fs",
-    "crates/ck_models"
+    "crates/ck_git"
 ]
 
 [workspace.package]
