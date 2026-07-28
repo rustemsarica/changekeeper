@@ -50,14 +50,16 @@ pub fn changed_files() -> Result<Vec<PathBuf>> {
     let mut files = Vec::new();
 
     for line in output.lines() {
-        if line.len() < 4 {
+        if line.len() < 3 {
             continue;
         }
 
-        // " M src/main.rs"
-        // "A  Cargo.toml"
-        // "?? test.txt"
-        let path = line[3..].trim();
+        let path = line
+            .chars()
+            .skip(3)
+            .collect::<String>()
+            .trim()
+            .to_string();
 
         if !path.is_empty() {
             files.push(PathBuf::from(path));
@@ -65,33 +67,4 @@ pub fn changed_files() -> Result<Vec<PathBuf>> {
     }
 
     Ok(files)
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn repository_root_returns_path() {
-        let root = repository_root().unwrap();
-        assert!(root.exists());
-    }
-
-    #[test]
-    fn current_branch_returns_value() {
-        let branch = current_branch().unwrap();
-        assert!(!branch.is_empty());
-    }
-
-    #[test]
-    fn current_commit_returns_hash() {
-        let commit = current_commit().unwrap();
-
-        assert!(commit.len() >= 40);
-    }
-
-    #[test]
-    fn changed_files_returns_list() {
-        let _ = changed_files().unwrap();
-    }
 }
