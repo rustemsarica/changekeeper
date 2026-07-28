@@ -54,12 +54,11 @@ pub fn changed_files() -> Result<Vec<PathBuf>> {
             continue;
         }
 
-        let path = line
-            .chars()
-            .skip(3)
-            .collect::<String>()
-            .trim()
-            .to_string();
+        // Git porcelain formatı:
+        // XY path
+        // İlk 2 karakter durum bilgisidir.
+        // Geri kalan kısım dosya yoludur.
+        let path = line[2..].trim();
 
         if !path.is_empty() {
             files.push(PathBuf::from(path));
