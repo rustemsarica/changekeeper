@@ -5,6 +5,7 @@ pub mod fs;
 pub mod list;
 pub mod show;
 pub mod restore;
+pub mod diff;
 
 use anyhow::Result;
 use std::path::PathBuf;

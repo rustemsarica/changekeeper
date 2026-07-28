@@ -36,3 +36,5 @@ walkdir = "2"
 sha2 = "0.10"
 
 thiserror = "2"
+
+similar = "2"

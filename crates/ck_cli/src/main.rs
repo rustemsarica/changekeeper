@@ -1,7 +1,7 @@
 use anyhow::Result;
 use clap::{CommandFactory, Parser, Subcommand};
 use clap_complete::{generate, shells};
-use std::io;
+use std::io::{self, Write};
 
 #[derive(Parser)]
 #[command(name = "ck")]
@@ -27,6 +27,10 @@ enum Commands {
         id: String,
     },
     Restore {
+        id: String,
+    },
+
+    Diff {
         id: String,
     },
 
@@ -113,12 +117,45 @@ fn main() -> Result<()> {
 
             let root = ck_git::repository_root()?;
 
+            let package = ck_engine::show::show_package(&config.storage, &id)?;
+
+            println!("Restore package:");
+            println!();
+            println!("Name : {}", package.name);
+            println!("Files: {}", package.files.len());
+            println!();
+
+            print!("Continue? [y/N] ");
+
+            io::stdout().flush()?;
+
+            let mut input = String::new();
+
+            io::stdin().read_line(&mut input)?;
+
+            if input.trim().to_lowercase() != "y" {
+                println!("Cancelled");
+                return Ok(());
+            }
+
             let restored = ck_engine::restore::restore_package(&config.storage, &id, &root)?;
 
-            println!("✔ Restore completed");
             println!();
+            println!("✔ Restore completed");
+
             for file in restored {
                 println!(" - {}", file.display());
+            }
+        }
+        Commands::Diff { id } => {
+            let config = ck_engine::config::load()?;
+
+            let root = ck_git::repository_root()?;
+
+            let changes = ck_engine::diff::diff_package(&config.storage, &id, &root)?;
+
+            for line in changes {
+                print!("{}", line);
             }
         }
         Commands::Completion { shell } => {
