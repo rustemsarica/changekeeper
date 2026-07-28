@@ -51,6 +51,7 @@ fn main() -> Result<()> {
                 commit,
                 changed_files,
             )?;
+            
             println!("✔ Change saved");
             println!("{}", package.display());
         }
