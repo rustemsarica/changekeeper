@@ -1,5 +1,7 @@
 use anyhow::Result;
-use clap::{Parser, Subcommand};
+use clap::{CommandFactory, Parser, Subcommand};
+use clap_complete::{generate, shells};
+use std::io;
 
 #[derive(Parser)]
 #[command(name = "ck")]
@@ -14,7 +16,10 @@ struct Cli {
 enum Commands {
     Init,
 
-    Save,
+    Save {
+        #[arg(short, long, default_value = "Unnamed Change")]
+        message: String,
+    },
 
     List,
 
@@ -23,6 +28,10 @@ enum Commands {
     },
     Restore {
         id: String,
+    },
+
+    Completion {
+        shell: String,
     },
 }
 
@@ -44,7 +53,7 @@ fn main() -> Result<()> {
             println!("Storage: {}", result.config.storage.display());
         }
 
-        Commands::Save => {
+        Commands::Save { message } => {
             let config = ck_engine::config::load()?;
 
             let root = ck_git::repository_root()?;
@@ -53,14 +62,9 @@ fn main() -> Result<()> {
 
             let changed_files = ck_git::changed_files()?;
 
-            let package = ck_engine::save(
-                config.storage,
-                root,
-                branch,
-                commit,
-                changed_files,
-            )?;
-            
+            let package =
+                ck_engine::save(config.storage, root, branch, commit, changed_files, message)?;
+
             println!("✔ Change saved");
             println!("{}", package.display());
         }
@@ -68,8 +72,7 @@ fn main() -> Result<()> {
         Commands::List => {
             let config = ck_engine::config::load()?;
 
-            let packages =
-                ck_engine::list::list_packages(&config.storage)?;
+            let packages = ck_engine::list::list_packages(&config.storage)?;
 
             if packages.is_empty() {
                 println!("No changes saved.");
@@ -78,6 +81,7 @@ fn main() -> Result<()> {
 
             for package in packages {
                 println!("{} {}", package.id, package.created_at);
+                println!("  Name   : {}", package.name);
                 println!("  Project: {}", package.project);
                 println!("  Branch : {}", package.branch);
                 println!("  Commit : {}", package.commit);
@@ -88,13 +92,10 @@ fn main() -> Result<()> {
         Commands::Show { id } => {
             let config = ck_engine::config::load()?;
 
-            let package =
-                ck_engine::show::show_package(
-                    &config.storage,
-                    &id,
-                )?;
+            let package = ck_engine::show::show_package(&config.storage, &id)?;
 
             println!("ID      : {}", package.id);
+            println!("Name    : {}", package.name);
             println!("Project : {}", package.project);
             println!("Branch  : {}", package.branch);
             println!("Commit  : {}", package.commit);
@@ -104,29 +105,41 @@ fn main() -> Result<()> {
             println!("Files:");
 
             for file in package.files {
-                println!(
-                    " - {}",
-                    file.path.display()
-                );
+                println!(" - {}", file.path.display());
             }
         }
         Commands::Restore { id } => {
             let config = ck_engine::config::load()?;
 
-            let root =
-                ck_git::repository_root()?;
+            let root = ck_git::repository_root()?;
 
-            let restored =
-                ck_engine::restore::restore_package(
-                    &config.storage,
-                    &id,
-                    &root,
-                )?;
+            let restored = ck_engine::restore::restore_package(&config.storage, &id, &root)?;
 
             println!("✔ Restore completed");
             println!();
             for file in restored {
                 println!(" - {}", file.display());
+            }
+        }
+        Commands::Completion { shell } => {
+            let mut cmd = Cli::command();
+
+            match shell.as_str() {
+                "bash" => {
+                    generate(shells::Bash, &mut cmd, "ck", &mut io::stdout());
+                }
+
+                "zsh" => {
+                    generate(shells::Zsh, &mut cmd, "ck", &mut io::stdout());
+                }
+
+                "fish" => {
+                    generate(shells::Fish, &mut cmd, "ck", &mut io::stdout());
+                }
+
+                _ => {
+                    println!("Supported shells: bash, zsh, fish");
+                }
             }
         }
     }

@@ -17,12 +17,15 @@ pub fn save(
     branch: String,
     commit: String,
     changed_files: Vec<PathBuf>,
+    name: String,
 ) -> Result<PathBuf> {
     let mut manifest = save::create_manifest(
         project_root.display().to_string(),
         branch,
         commit,
     );
+
+    manifest.name = name;
 
     let package = save::create_package(
         &storage,
