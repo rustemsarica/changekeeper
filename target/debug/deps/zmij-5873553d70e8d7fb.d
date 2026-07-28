@@ -1,6 +1,0 @@
-/Users/rustem/Desktop/projects/changekeeper/target/debug/deps/zmij-5873553d70e8d7fb.d: /Users/rustem/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/zmij-1.0.23/src/lib.rs /Users/rustem/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/zmij-1.0.23/src/traits.rs
-
-/Users/rustem/Desktop/projects/changekeeper/target/debug/deps/libzmij-5873553d70e8d7fb.rmeta: /Users/rustem/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/zmij-1.0.23/src/lib.rs /Users/rustem/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/zmij-1.0.23/src/traits.rs
-
-/Users/rustem/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/zmij-1.0.23/src/lib.rs:
-/Users/rustem/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/zmij-1.0.23/src/traits.rs:
