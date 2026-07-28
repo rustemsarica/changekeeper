@@ -66,11 +66,16 @@ fn main() -> Result<()> {
 
             let changed_files = ck_git::changed_files()?;
 
-            let package =
-                ck_engine::save(config.storage, root, branch, commit, changed_files, message)?;
+            match ck_engine::save(config.storage, root, branch, commit, changed_files, message) {
+                Ok(package) => {
+                    println!("✔ Change saved");
+                    println!("{}", package.display());
+                }
 
-            println!("✔ Change saved");
-            println!("{}", package.display());
+                Err(err) => {
+                    println!("⚠ {}", err);
+                }
+            }
         }
 
         Commands::List => {

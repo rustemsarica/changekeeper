@@ -20,6 +20,10 @@ pub fn save(
     changed_files: Vec<PathBuf>,
     name: String,
 ) -> Result<PathBuf> {
+    if changed_files.is_empty() {
+        anyhow::bail!("No changes detected");
+    }
+
     let mut manifest = save::create_manifest(
         project_root.display().to_string(),
         branch,
