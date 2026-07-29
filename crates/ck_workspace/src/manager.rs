@@ -102,9 +102,6 @@ impl<G: GitProvider> WorkspaceManager<G> {
             }
 
             // current
-            println!("{:?}", source);
-            println!("{}", source.is_file());
-            println!("{}", source.is_dir());
             std::fs::copy(&source, &current)?;
 
             // base
