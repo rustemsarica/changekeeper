@@ -2,6 +2,7 @@ use anyhow::Result;
 
 use ck_context::ProjectContext;
 use ck_git::RealGitProvider;
+use ck_models::Workspace;
 use ck_storage::Storage;
 use ck_workspace::WorkspaceManager;
 pub struct App {
@@ -38,15 +39,36 @@ impl App {
     pub fn remove(&self, name: &str) -> anyhow::Result<()> {
         self.workspace_manager.remove(&self.context, name)
     }
-    pub fn history(&self, workspace: &str) -> anyhow::Result<Vec<ck_models::Snapshot>> {
-        self.workspace_manager.history(&self.context, workspace)
+    pub fn history(&self, workspace: Option<&str>) -> anyhow::Result<Vec<ck_models::Snapshot>> {
+        let workspace = self.resolve_workspace(workspace)?;
+        self.workspace_manager.history(&self.context, &workspace)
     }
-    pub fn park(&self, workspace: &str) -> anyhow::Result<()> {
+    pub fn park(&self, workspace: Option<&str>, message: Option<String>) -> anyhow::Result<()> {
+        let workspace = self.resolve_workspace(workspace)?;
         self.workspace_manager
-            .park_workspace(&self.context, workspace)
+            .park_workspace(&self.context, &workspace, message)
     }
-    pub fn resume(&self, workspace: &str) -> anyhow::Result<()> {
+    pub fn resume(&self, workspace: Option<&str>) -> anyhow::Result<()> {
+        let workspace = self.resolve_workspace(workspace)?;
         self.workspace_manager
-            .resume_workspace(&self.context, workspace)
+            .resume_workspace(&self.context, &workspace)
+    }
+    pub fn use_workspace(&self, workspace: &str) -> anyhow::Result<()> {
+        self.workspace_manager
+            .use_workspace(&self.context, workspace)
+    }
+    pub fn active_workspace(&self) -> anyhow::Result<Option<Workspace>> {
+        self.workspace_manager.active_workspace(&self.context)
+    }
+    pub(crate) fn resolve_workspace(&self, workspace: Option<&str>) -> Result<String> {
+        if let Some(workspace) = workspace {
+            return Ok(workspace.to_string());
+        }
+
+        let Some(active) = self.active_workspace()? else {
+            anyhow::bail!("No active workspace selected. Use 'ck use <workspace>'.");
+        };
+
+        Ok(active.name)
     }
 }

@@ -32,14 +32,21 @@ pub enum Command {
     },
 
     History {
-        workspace: String,
+        workspace: Option<String>,
     },
 
     Park {
-        workspace: String,
+        workspace: Option<String>,
+
+        #[arg(short, long)]
+        message: Option<String>,
     },
 
     Resume {
+        workspace: Option<String>,
+    },
+
+    Use {
         workspace: String,
     },
 }

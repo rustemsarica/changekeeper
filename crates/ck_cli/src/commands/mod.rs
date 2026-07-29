@@ -6,6 +6,7 @@ mod rename;
 mod resume;
 mod save;
 mod status;
+mod use_workspace;
 
 use anyhow::Result;
 use clap::Parser;
@@ -30,6 +31,8 @@ pub fn run() -> Result<()> {
 
         Command::History { workspace } => history::execute(workspace),
 
-        Command::Park { workspace } => park::execute(workspace),
+        Command::Park { workspace, message } => park::execute(workspace, message),
+
+        Command::Use { workspace } => use_workspace::execute(workspace)
     }
 }

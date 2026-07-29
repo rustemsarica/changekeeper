@@ -49,7 +49,7 @@ impl<G: GitProvider> WorkspaceManager<G> {
             self.create(context, name, description)?
         };
 
-        self.park(context, &mut workspace)?;
+        self.park(context, &mut workspace, None)?;
 
         self.storage.save_workspace(&context.project, &workspace)?;
 
@@ -59,25 +59,25 @@ impl<G: GitProvider> WorkspaceManager<G> {
         Ok(workspace)
     }
 
-    fn park(&self, context: &ProjectContext, workspace: &mut Workspace) -> Result<()> {
+    fn park(
+        &self,
+        context: &ProjectContext,
+        workspace: &mut Workspace,
+        message: Option<String>,
+    ) -> Result<()> {
         let files = self.git.changed_files()?;
 
         if files.is_empty() {
             return Ok(());
         }
 
-        let snapshot = workspace.next_snapshot();
+        let snapshot_id = workspace.next_snapshot();
+
+        let mut snapshot = Snapshot::new(snapshot_id);
+        snapshot.message = message;
 
         self.storage
-            .create_snapshot(&context.project, workspace, snapshot)?;
-
-        let metadata = Snapshot {
-            id: snapshot,
-            created_at: chrono::Utc::now(),
-        };
-
-        self.storage
-            .save_snapshot(&context.project, workspace, &metadata)?;
+            .create_snapshot_with_metadata(&context.project, workspace, &snapshot)?;
 
         for file in files {
             let source = context.project.root.join(&file);
@@ -87,7 +87,7 @@ impl<G: GitProvider> WorkspaceManager<G> {
 
             let snapshot_dir = self
                 .storage
-                .snapshot_dir(&context.project, workspace, snapshot);
+                .snapshot_dir(&context.project, workspace, snapshot_id);
 
             let current = snapshot_dir.join("current").join(&file);
 
@@ -209,11 +209,14 @@ impl<G: GitProvider> WorkspaceManager<G> {
         self.storage.list_snapshots(&context.project, &workspace)
     }
 
-    pub fn park_workspace(&self, context: &ProjectContext, workspace: &str) -> Result<()> {
+    pub fn park_workspace(
+        &self,
+        context: &ProjectContext,
+        workspace: &str,
+        message: Option<String>,
+    ) -> Result<()> {
         let mut workspace = self.storage.load_workspace(&context.project, workspace)?;
-
-        self.park(context, &mut workspace)?;
-
+        let _ = self.park(context, &mut workspace, message);
         self.storage.save_workspace(&context.project, &workspace)?;
 
         Ok(())
@@ -271,6 +274,27 @@ impl<G: GitProvider> WorkspaceManager<G> {
 
         Ok(())
     }
+
+    pub fn use_workspace(&self, context: &ProjectContext, name: &str) -> Result<()> {
+        if !self.exists(&context, name).is_ok() {
+            anyhow::bail!("Workspace '{}' not found.", name);
+        }
+
+        self.storage
+            .set_active_workspace(&context.project, Some(name.to_string()))?;
+
+        Ok(())
+    }
+
+    pub fn active_workspace(&self, context: &ProjectContext) -> Result<Option<Workspace>> {
+        let Some(name) = self.storage.active_workspace(&context.project)? else {
+            return Ok(None);
+        };
+
+        let workspace = self.storage.load_workspace(&context.project, &name)?;
+
+        Ok(Some(workspace))
+    }
 }
 
 #[cfg(test)]
@@ -314,7 +338,7 @@ mod tests {
             .storage
             .save_workspace(&context.project, &workspace)
             .unwrap();
-        manager.park_workspace(&context, "payment").unwrap();
+        manager.park_workspace(&context, "payment", None).unwrap();
         let workspace = manager
             .storage
             .load_workspace(&context.project, "payment")
@@ -413,7 +437,7 @@ mod tests {
             .storage
             .save_workspace(&context.project, &workspace)
             .unwrap();
-        manager.park_workspace(&context, "payment").unwrap();
+        manager.park_workspace(&context, "payment", None).unwrap();
         let workspace = manager
             .storage
             .load_workspace(&context.project, "payment")
@@ -427,7 +451,7 @@ mod tests {
             .storage
             .save_workspace(&context.project, &workspace)
             .unwrap();
-        manager.park_workspace(&context, "payment").unwrap();
+        manager.park_workspace(&context, "payment", None).unwrap();
         let workspace = manager
             .storage
             .load_workspace(&context.project, "payment")
@@ -688,8 +712,9 @@ mod tests {
             .storage
             .save_workspace(&context.project, &workspace)
             .unwrap();
-        manager.park_workspace(&context, "payment").unwrap();
-        manager.park_workspace(&context, "payment").unwrap();
+
+        manager.park_workspace(&context, "payment", None).unwrap();
+        manager.park_workspace(&context, "payment", None).unwrap();
 
         let history = manager.history(&context, "payment").unwrap();
 

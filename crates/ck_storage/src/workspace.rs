@@ -235,6 +235,17 @@ impl Storage {
         Ok(())
     }
 
+    pub fn create_snapshot_with_metadata(
+        &self,
+        project: &Project,
+        workspace: &Workspace,
+        snapshot: &Snapshot,
+    ) -> Result<()> {
+        self.create_snapshot(project, workspace, snapshot.id)?;
+        self.save_snapshot(project, workspace, snapshot)?;
+        Ok(())
+    }
+
     pub fn copy_snapshot(
         &self,
         source: impl AsRef<Path>,
@@ -259,6 +270,7 @@ impl Storage {
     fn workspace_dir_by_name(&self, project: &Project, name: &str) -> PathBuf {
         self.project_dir(project).join("workspaces").join(name)
     }
+
 }
 #[cfg(test)]
 mod snapshot_tests {

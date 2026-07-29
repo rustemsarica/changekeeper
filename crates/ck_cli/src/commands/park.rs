@@ -2,11 +2,11 @@ use anyhow::Result;
 
 use crate::app::App;
 
-pub fn execute(workspace: String) -> Result<()> {
+pub fn execute(workspace: Option<String>, message: Option<String>) -> Result<()> {
     let app = App::new()?;
 
-    app.park(&workspace)?;
-
+    let workspace = app.resolve_workspace(workspace.as_deref())?;
+    app.park(Some(&workspace), message)?;
     println!("Workspace '{}' parked.", workspace);
 
     Ok(())

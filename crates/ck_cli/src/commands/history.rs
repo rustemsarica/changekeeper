@@ -2,11 +2,11 @@ use anyhow::Result;
 
 use crate::app::App;
 
-pub fn execute(workspace: String) -> Result<()> {
+pub fn execute(workspace: Option<String>) -> Result<()> {
     let app = App::new()?;
 
-    let snapshots = app.history(&workspace)?;
-
+    let workspace = app.resolve_workspace(workspace.as_deref())?;
+    let snapshots = app.history(Some(&workspace))?;
     println!("Workspace: {}", workspace);
     println!();
 
@@ -16,7 +16,15 @@ pub fn execute(workspace: String) -> Result<()> {
     }
 
     for snapshot in snapshots {
-        println!("#{}  {}", snapshot.id, snapshot.created_at);
+        match &snapshot.message {
+            Some(message) => {
+                println!("#{:<4} {}  {}", snapshot.id, snapshot.created_at, message);
+            }
+
+            None => {
+                println!("#{:<4} {}", snapshot.id, snapshot.created_at);
+            }
+        }
     }
 
     Ok(())
