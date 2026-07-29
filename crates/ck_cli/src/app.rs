@@ -4,7 +4,6 @@ use ck_context::ProjectContext;
 use ck_git::RealGitProvider;
 use ck_storage::Storage;
 use ck_workspace::WorkspaceManager;
-
 pub struct App {
     pub context: ProjectContext,
     pub workspace_manager: WorkspaceManager<RealGitProvider>,
@@ -38,5 +37,8 @@ impl App {
     }
     pub fn remove(&self, name: &str) -> anyhow::Result<()> {
         self.workspace_manager.remove(&self.context, name)
+    }
+    pub fn history(&self, workspace: &str) -> anyhow::Result<Vec<ck_models::Snapshot>> {
+        self.workspace_manager.history(&self.context, workspace)
     }
 }

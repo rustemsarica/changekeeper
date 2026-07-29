@@ -34,4 +34,8 @@ pub enum Command {
     Remove {
         name: String,
     },
+
+    History {
+        workspace: String,
+    }
 }

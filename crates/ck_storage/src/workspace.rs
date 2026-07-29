@@ -2,7 +2,7 @@ use crate::Storage;
 use crate::files::copy_directory;
 use anyhow::Result;
 use chrono::Utc;
-use ck_models::{Project, Workspace};
+use ck_models::{Project, Workspace, snapshot::Snapshot};
 use std::{
     fs,
     path::{Path, PathBuf},
@@ -138,6 +138,83 @@ impl Storage {
         Ok(toml::from_str(&content)?)
     }
 
+    pub fn snapshot_metadata_file(
+        &self,
+        project: &Project,
+        workspace: &Workspace,
+        id: u32,
+    ) -> PathBuf {
+        self.snapshot_dir(project, workspace, id)
+            .join("snapshot.toml")
+    }
+
+    pub fn save_snapshot(
+        &self,
+        project: &Project,
+        workspace: &Workspace,
+        snapshot: &Snapshot,
+    ) -> Result<()> {
+        let file = self.snapshot_metadata_file(
+            project,
+            workspace,
+            snapshot.id,
+        );
+
+        if let Some(parent) = file.parent() {
+            std::fs::create_dir_all(parent)?;
+        }
+
+        let toml = toml::to_string_pretty(snapshot)?;
+
+        std::fs::write(file, toml)?;
+
+        Ok(())
+    }
+
+    pub fn load_snapshot(
+        &self,
+        project: &Project,
+        workspace: &Workspace,
+        id: u32,
+    ) -> Result<Snapshot> {
+        let text = std::fs::read_to_string(self.snapshot_metadata_file(project, workspace, id))?;
+
+        Ok(toml::from_str(&text)?)
+    }
+
+    pub fn list_snapshots(
+        &self,
+        project: &Project,
+        workspace: &Workspace,
+    ) -> Result<Vec<Snapshot>> {
+        let dir = self.workspace_dir(project, workspace).join("snapshots");
+
+        if !dir.exists() {
+            return Ok(Vec::new());
+        }
+
+        let mut snapshots = Vec::new();
+
+        for entry in std::fs::read_dir(dir)? {
+            let entry = entry?;
+
+            if !entry.file_type()?.is_dir() {
+                continue;
+            }
+
+            let id: u32 = match entry.file_name().to_string_lossy().parse() {
+                Ok(id) => id,
+                Err(_) => continue,
+            };
+
+            snapshots.push(self.load_snapshot(project, workspace, id)?);
+        }
+
+        snapshots.sort_by_key(|s| s.id);
+
+        Ok(snapshots)
+    }
+
     pub fn snapshots_dir(&self, project: &Project, workspace: &Workspace) -> PathBuf {
         self.workspace_dir(project, workspace).join("snapshots")
     }
@@ -177,12 +254,12 @@ impl Storage {
 
         Ok(())
     }
-    
+
     pub fn snapshot_current_dir(&self, project: &Project, workspace: &Workspace) -> PathBuf {
         self.snapshot_dir(project, workspace, workspace.current_snapshot)
             .join("current")
     }
-    
+
     fn workspace_dir_by_name(&self, project: &Project, name: &str) -> PathBuf {
         self.project_dir(project).join("workspaces").join(name)
     }

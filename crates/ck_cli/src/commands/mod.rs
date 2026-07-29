@@ -4,6 +4,7 @@ mod rename;
 mod resume;
 mod save;
 mod status;
+mod history;
 
 use anyhow::Result;
 use clap::Parser;
@@ -25,5 +26,7 @@ pub fn run() -> Result<()> {
         Command::Rename { old, new } => rename::execute(old, new),
 
         Command::Remove { name } => remove::execute(name),
+
+        Command::History { workspace } => history::execute(workspace)
     }
 }

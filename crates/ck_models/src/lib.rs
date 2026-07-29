@@ -9,3 +9,4 @@ pub use project::ProjectMetadata;
 pub use workspace::Workspace;
 pub use version::Version;
 pub use conflict::Conflict;
+pub use snapshot::Snapshot;

@@ -4,6 +4,7 @@ use ck_context::ProjectContext;
 use ck_git::GitProvider;
 use ck_git::file_from_head;
 use ck_models::Workspace;
+use ck_models::snapshot::Snapshot;
 use ck_storage::Storage;
 
 use ck_merge::{MergeResult, compare_files, create_conflict_file};
@@ -69,6 +70,14 @@ impl<G: GitProvider> WorkspaceManager<G> {
 
         self.storage
             .create_snapshot(&context.project, workspace, snapshot)?;
+
+        let metadata = Snapshot {
+            id: snapshot,
+            created_at: chrono::Utc::now(),
+        };
+
+        self.storage
+            .save_snapshot(&context.project, workspace, &metadata)?;
 
         for file in files {
             let source = context.project.root.join(&file);
@@ -197,6 +206,12 @@ impl<G: GitProvider> WorkspaceManager<G> {
 
     pub fn exists(&self, context: &ProjectContext, name: &str) -> Result<bool> {
         Ok(self.storage.load_workspace(&context.project, name).is_ok())
+    }
+
+    pub fn history(&self, context: &ProjectContext, workspace: &str) -> Result<Vec<Snapshot>> {
+        let workspace = self.storage.load_workspace(&context.project, workspace)?;
+
+        self.storage.list_snapshots(&context.project, &workspace)
     }
 
     fn merge_resume(&self, context: &ProjectContext, workspace: &Workspace) -> Result<()> {
@@ -604,5 +619,48 @@ mod tests {
         let workspace = manager.save(&context, "payment", None).unwrap();
 
         assert_eq!(workspace.current_snapshot, 2);
+    }
+    #[test]
+    fn history_returns_snapshots() {
+        let dir = tempdir().unwrap();
+
+        let project_root = dir.path().join("project");
+
+        std::fs::create_dir_all(project_root.join(".git")).unwrap();
+
+        std::fs::write(project_root.join("test.txt"), "hello").unwrap();
+
+        let project = Project::new(
+            "test".into(),
+            "test".into(),
+            project_root.clone(),
+            project_root.clone(),
+        );
+
+        let context = ProjectContext {
+            project,
+            branch: "main".into(),
+            commit: None,
+        };
+
+        let storage = Storage::new(dir.path().join("storage"));
+
+        let manager = WorkspaceManager::new(storage, FakeGitProvider::new(vec!["test.txt".into()]));
+
+        let mut workspace = Workspace::new("payment", "main");
+
+        manager
+            .storage
+            .save_workspace(&context.project, &workspace)
+            .unwrap();
+
+        manager.park(&context, &mut workspace).unwrap();
+        manager.park(&context, &mut workspace).unwrap();
+
+        let history = manager.history(&context, "payment").unwrap();
+
+        assert_eq!(history.len(), 2);
+        assert_eq!(history[0].id, 1);
+        assert_eq!(history[1].id, 2);
     }
 }
