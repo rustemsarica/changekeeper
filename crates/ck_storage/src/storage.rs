@@ -14,10 +14,7 @@ impl Storage {
         &self.root
     }
 
-    pub fn project_dir(
-        &self,
-        project: &Project,
-    ) -> PathBuf {
+    pub fn project_dir(&self, project: &Project) -> PathBuf {
         self.root.join(&project.id)
     }
 }

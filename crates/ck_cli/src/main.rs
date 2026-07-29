@@ -6,5 +6,4 @@ mod commands;
 
 fn main() -> Result<()> {
     commands::run()
-    
 }

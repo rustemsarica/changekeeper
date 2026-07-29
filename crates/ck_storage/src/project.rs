@@ -1,9 +1,6 @@
 use crate::Storage;
 use anyhow::Result;
-use ck_models::{
-    Project,
-    ProjectMetadata
-};
+use ck_models::{Project, ProjectMetadata};
 use std::{fs, path::PathBuf};
 
 impl Storage {
@@ -62,4 +59,3 @@ impl Storage {
         Ok(self.load_project_metadata(project)?.active_workspace)
     }
 }
-

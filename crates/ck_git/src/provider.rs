@@ -1,7 +1,7 @@
-use crate::status::changed_files;
-use crate::status::is_clean;
 use crate::branch;
 use crate::commit;
+use crate::status::changed_files;
+use crate::status::is_clean;
 use anyhow::Result;
 use std::path::PathBuf;
 
@@ -42,9 +42,7 @@ impl FakeGitProvider {
         Self { files, clean: true }
     }
 
-    pub fn with_dirty_state(
-        files: Vec<PathBuf>,
-    ) -> Self {
+    pub fn with_dirty_state(files: Vec<PathBuf>) -> Self {
         Self {
             files,
             clean: false,

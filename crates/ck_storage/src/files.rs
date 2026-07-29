@@ -1,12 +1,9 @@
 use anyhow::Result;
+use std::fs;
 use std::path::Path;
 use walkdir::WalkDir;
-use std::fs;
 
-pub fn copy_directory(
-    source: impl AsRef<Path>,
-    destination: impl AsRef<Path>,
-) -> Result<()> {
+pub fn copy_directory(source: impl AsRef<Path>, destination: impl AsRef<Path>) -> Result<()> {
     let source = source.as_ref();
     let destination = destination.as_ref();
 
@@ -42,31 +39,20 @@ pub fn copy_directory(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use tempfile::tempdir;
     use std::fs;
+    use tempfile::tempdir;
 
     #[test]
     fn directory_can_be_copied() {
         let source = tempdir().unwrap();
         let target = tempdir().unwrap();
 
-        fs::write(
-            source.path().join("test.txt"),
-            "hello",
-        )
-        .unwrap();
+        fs::write(source.path().join("test.txt"), "hello").unwrap();
 
-        copy_directory(
-            source.path(),
-            target.path(),
-        )
-        .unwrap();
+        copy_directory(source.path(), target.path()).unwrap();
 
         assert_eq!(
-            fs::read_to_string(
-                target.path().join("test.txt")
-            )
-            .unwrap(),
+            fs::read_to_string(target.path().join("test.txt")).unwrap(),
             "hello"
         );
     }

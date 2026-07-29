@@ -1,9 +1,5 @@
 use anyhow::Result;
-use ck_git::{
-    current_branch,
-    current_commit,
-    discover_project,
-};
+use ck_git::{current_branch, current_commit, discover_project};
 use ck_models::Project;
 
 #[derive(Debug, Clone)]
@@ -17,8 +13,7 @@ impl ProjectContext {
     pub fn discover() -> Result<Self> {
         let project = discover_project()?;
 
-        let branch = current_branch()?
-            .unwrap_or_else(|| "HEAD".to_string());
+        let branch = current_branch()?.unwrap_or_else(|| "HEAD".to_string());
 
         let commit = current_commit()?;
 

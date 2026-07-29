@@ -154,11 +154,7 @@ impl Storage {
         workspace: &Workspace,
         snapshot: &Snapshot,
     ) -> Result<()> {
-        let file = self.snapshot_metadata_file(
-            project,
-            workspace,
-            snapshot.id,
-        );
+        let file = self.snapshot_metadata_file(project, workspace, snapshot.id);
 
         if let Some(parent) = file.parent() {
             std::fs::create_dir_all(parent)?;

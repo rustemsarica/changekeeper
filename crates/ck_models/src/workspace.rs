@@ -14,10 +14,7 @@ pub struct Workspace {
 }
 
 impl Workspace {
-    pub fn new(
-        name: impl Into<String>,
-        branch: impl Into<String>,
-    ) -> Self {
+    pub fn new(name: impl Into<String>, branch: impl Into<String>) -> Self {
         let now = Utc::now();
 
         Self {

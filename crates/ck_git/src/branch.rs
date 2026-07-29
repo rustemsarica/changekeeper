@@ -10,9 +10,7 @@ pub fn current_branch() -> Result<Option<String>> {
         return Ok(None);
     }
 
-    let branch = String::from_utf8_lossy(&output.stdout)
-        .trim()
-        .to_string();
+    let branch = String::from_utf8_lossy(&output.stdout).trim().to_string();
 
     if branch.is_empty() {
         Ok(None)

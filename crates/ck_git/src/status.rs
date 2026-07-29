@@ -1,18 +1,13 @@
 use anyhow::Result;
-use std::process::Command;
 use std::path::PathBuf;
+use std::process::Command;
 
 pub fn changed_files() -> Result<Vec<PathBuf>> {
     let output = Command::new("git")
-        .args([
-            "status",
-            "--porcelain",
-        ])
+        .args(["status", "--porcelain"])
         .output()?;
 
-    let result = String::from_utf8_lossy(
-        &output.stdout
-    );
+    let result = String::from_utf8_lossy(&output.stdout);
 
     let files = result
         .lines()
@@ -32,10 +27,7 @@ pub fn changed_files() -> Result<Vec<PathBuf>> {
 
 pub fn is_clean() -> Result<bool> {
     let output = Command::new("git")
-        .args([
-            "status",
-            "--porcelain",
-        ])
+        .args(["status", "--porcelain"])
         .output()?;
 
     Ok(output.stdout.is_empty())
