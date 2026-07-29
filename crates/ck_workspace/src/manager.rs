@@ -1,3 +1,4 @@
+use anyhow::Ok;
 use anyhow::Result;
 use ck_context::ProjectContext;
 use ck_git::GitProvider;
@@ -28,6 +29,9 @@ impl<G: GitProvider> WorkspaceManager<G> {
         workspace.base_commit = context.commit.clone();
 
         self.storage.save_workspace(&context.project, &workspace)?;
+
+        self.storage
+            .set_active_workspace(&context.project, Some(workspace.name.clone()))?;
 
         Ok(workspace)
     }
@@ -111,6 +115,9 @@ impl<G: GitProvider> WorkspaceManager<G> {
             std::fs::copy(entry.path(), target)?;
         }
 
+        self.storage
+            .set_active_workspace(&context.project, Some(workspace.name.clone()))?;
+
         Ok(())
     }
 
@@ -119,9 +126,11 @@ impl<G: GitProvider> WorkspaceManager<G> {
     }
 
     pub fn status(&self, context: &ProjectContext) -> Result<Option<Workspace>> {
-        let list = self.storage.list_workspaces(&context.project)?;
+        let Some(name) = self.storage.active_workspace(&context.project)? else {
+            return Ok(None);
+        };
 
-        Ok(list.into_iter().next())
+        Ok(Some(self.storage.load_workspace(&context.project, &name)?))
     }
 
     pub fn rename(&self, context: &ProjectContext, old: &str, new: &str) -> Result<()> {
@@ -137,15 +146,25 @@ impl<G: GitProvider> WorkspaceManager<G> {
             anyhow::bail!("workspace '{}' already exists", new);
         }
 
-        self.storage.rename_workspace(&context.project, old, new)
+        let _ = self.storage.rename_workspace(&context.project, old, new);
+
+        if self.storage.active_workspace(&context.project)?.as_deref() == Some(old) {
+            self.storage
+                .set_active_workspace(&context.project, Some(new.to_string()))?;
+        }
+        Ok(())
     }
 
     pub fn remove(&self, context: &ProjectContext, name: &str) -> Result<()> {
         if !self.exists(context, name)? {
             anyhow::bail!("workspace '{}' not found", name);
         }
-
-        self.storage.remove_workspace(&context.project, name)
+        let active = self.storage.active_workspace(&context.project)?;
+        let _ = self.storage.remove_workspace(&context.project, name);
+        if active.as_deref() == Some(name) {
+            self.storage.set_active_workspace(&context.project, None)?;
+        }
+        Ok(())
     }
 
     pub fn exists(&self, context: &ProjectContext, name: &str) -> Result<bool> {

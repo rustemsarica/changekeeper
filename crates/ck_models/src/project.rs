@@ -12,12 +12,7 @@ pub struct Project {
 }
 
 impl Project {
-    pub fn new(
-        id: String,
-        name: String,
-        root: PathBuf,
-        git_root: PathBuf,
-    ) -> Self {
+    pub fn new(id: String, name: String, root: PathBuf, git_root: PathBuf) -> Self {
         Self {
             id,
             name,
@@ -28,3 +23,21 @@ impl Project {
         }
     }
 }
+
+use chrono::{DateTime, Utc};
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ProjectMetadata {
+    pub active_workspace: Option<String>,
+    pub last_used: Option<DateTime<Utc>>,
+}
+
+impl Default for ProjectMetadata {
+    fn default() -> Self {
+        Self {
+            active_workspace: None,
+            last_used: None,
+        }
+    }
+}
+
