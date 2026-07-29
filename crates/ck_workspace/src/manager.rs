@@ -319,9 +319,9 @@ mod tests {
 
         std::fs::create_dir_all(&project).unwrap();
 
-        let storage = Storage::new(dir.path().join("storage"));
+        // let storage = Storage::new(dir.path().join("storage"));
 
-        let manager = WorkspaceManager::new(storage, FakeGitProvider::new(vec![]));
+        // let manager = WorkspaceManager::new(storage, FakeGitProvider::new(vec![]));
 
         let file = project.join("test.txt");
 
