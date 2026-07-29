@@ -70,17 +70,34 @@ impl Storage {
         Ok(workspaces)
     }
 
-    pub fn delete_workspace(&self, project: &Project, name: &str) -> Result<()> {
-        fs::remove_dir_all(self.project_dir(project).join("workspaces").join(name))?;
+    pub fn remove_workspace(&self, project: &Project, name: &str) -> Result<()> {
+        let dir = self.workspace_dir_by_name(project, name);
+
+        if dir.exists() {
+            std::fs::remove_dir_all(dir)?;
+        }
 
         Ok(())
     }
 
     pub fn rename_workspace(&self, project: &Project, old: &str, new: &str) -> Result<()> {
-        fs::rename(
-            self.project_dir(project).join("workspaces").join(old),
-            self.project_dir(project).join("workspaces").join(new),
-        )?;
+        let mut workspace = self.load_workspace(project, old)?;
+
+        let old_dir = self.workspace_dir_by_name(project, old);
+
+        let new_dir = self.workspace_dir_by_name(project, new);
+
+        if new_dir.exists() {
+            anyhow::bail!("workspace '{}' already exists", new);
+        }
+
+        std::fs::rename(&old_dir, &new_dir)?;
+
+        workspace.name = new.to_string();
+
+        let toml = toml::to_string_pretty(&workspace)?;
+
+        std::fs::write(new_dir.join("workspace.toml"), toml)?;
 
         Ok(())
     }
@@ -191,6 +208,9 @@ impl Storage {
         self.snapshot_dir(project, workspace, workspace.current_snapshot)
             .join("current")
     }
+    fn workspace_dir_by_name(&self, project: &Project, name: &str) -> PathBuf {
+        self.project_dir(project).join("workspaces").join(name)
+    }
 }
 #[cfg(test)]
 mod snapshot_tests {
@@ -245,5 +265,36 @@ mod snapshot_tests {
 
         assert!(path.join("base").exists());
         assert!(path.join("current").exists());
+    }
+    #[test]
+    fn workspace_can_be_renamed() {
+        let temp = tempdir().unwrap();
+
+        let storage = Storage::new(temp.path().join("storage"));
+
+        let project = Project::new(
+            "id".into(),
+            "demo".into(),
+            temp.path().into(),
+            temp.path().into(),
+        );
+
+        storage.create_project(&project).unwrap();
+
+        let workspace = Workspace::new("payment", "main");
+
+        storage.save_workspace(&project, &workspace).unwrap();
+
+        storage
+            .rename_workspace(&project, "payment", "checkout")
+            .unwrap();
+
+        assert!(storage.workspace_dir_by_name(&project, "checkout").exists());
+
+        assert!(!storage.workspace_dir_by_name(&project, "payment").exists());
+
+        let workspace = storage.load_workspace(&project, "checkout").unwrap();
+
+        assert_eq!(workspace.name, "checkout");
     }
 }

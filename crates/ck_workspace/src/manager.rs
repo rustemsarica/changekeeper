@@ -115,19 +115,41 @@ impl<G: GitProvider> WorkspaceManager<G> {
     }
 
     pub fn list(&self, context: &ProjectContext) -> Result<Vec<Workspace>> {
-        todo!()
+        self.storage.list_workspaces(&context.project)
     }
 
     pub fn status(&self, context: &ProjectContext) -> Result<Option<Workspace>> {
-        todo!()
+        let list = self.storage.list_workspaces(&context.project)?;
+
+        Ok(list.into_iter().next())
     }
 
     pub fn rename(&self, context: &ProjectContext, old: &str, new: &str) -> Result<()> {
-        todo!()
+        if old == new {
+            return Ok(());
+        }
+
+        if !self.exists(context, old)? {
+            anyhow::bail!("workspace '{}' not found", old);
+        }
+
+        if self.exists(context, new)? {
+            anyhow::bail!("workspace '{}' already exists", new);
+        }
+
+        self.storage.rename_workspace(&context.project, old, new)
     }
 
     pub fn remove(&self, context: &ProjectContext, name: &str) -> Result<()> {
-        todo!()
+        if !self.exists(context, name)? {
+            anyhow::bail!("workspace '{}' not found", name);
+        }
+
+        self.storage.remove_workspace(&context.project, name)
+    }
+
+    pub fn exists(&self, context: &ProjectContext, name: &str) -> Result<bool> {
+        Ok(self.storage.load_workspace(&context.project, name).is_ok())
     }
 
     fn merge_resume(&self, context: &ProjectContext, workspace: &Workspace) -> Result<()> {
@@ -327,5 +349,148 @@ mod tests {
         assert!(snapshot1.exists());
 
         assert!(snapshot2.exists());
+    }
+    #[test]
+    fn rename_workspace_changes_name() {
+        let temp = tempdir().unwrap();
+
+        let project_root = temp.path().join("project");
+        fs::create_dir_all(project_root.join(".git")).unwrap();
+
+        let project = Project::new(
+            "test".into(),
+            "test".into(),
+            project_root.clone(),
+            project_root.clone(),
+        );
+
+        let context = ProjectContext {
+            project,
+            branch: "main".into(),
+            commit: None,
+        };
+
+        let storage = Storage::new(temp.path().join("storage"));
+
+        let manager = WorkspaceManager::new(storage, FakeGitProvider::new(vec![]));
+
+        manager.create(&context, "payment", None).unwrap();
+
+        manager.rename(&context, "payment", "checkout").unwrap();
+
+        assert!(!manager.exists(&context, "payment").unwrap());
+        assert!(manager.exists(&context, "checkout").unwrap());
+
+        let list = manager.list(&context).unwrap();
+
+        assert_eq!(list.len(), 1);
+        assert_eq!(list[0].name, "checkout");
+    }
+
+    #[test]
+    fn remove_workspace_deletes_workspace() {
+        let temp = tempdir().unwrap();
+
+        let project_root = temp.path().join("project");
+        fs::create_dir_all(project_root.join(".git")).unwrap();
+
+        let project = Project::new(
+            "test".into(),
+            "test".into(),
+            project_root.clone(),
+            project_root.clone(),
+        );
+
+        let context = ProjectContext {
+            project,
+            branch: "main".into(),
+            commit: None,
+        };
+
+        let storage = Storage::new(temp.path().join("storage"));
+
+        let manager = WorkspaceManager::new(storage, FakeGitProvider::new(vec![]));
+
+        manager.create(&context, "payment", None).unwrap();
+
+        assert!(manager.exists(&context, "payment").unwrap());
+
+        manager.remove(&context, "payment").unwrap();
+
+        assert!(!manager.exists(&context, "payment").unwrap());
+
+        let list = manager.list(&context).unwrap();
+
+        assert!(list.is_empty());
+    }
+
+    #[test]
+    fn list_returns_sorted_workspaces() {
+        let temp = tempdir().unwrap();
+
+        let project_root = temp.path().join("project");
+        fs::create_dir_all(project_root.join(".git")).unwrap();
+
+        let project = Project::new(
+            "test".into(),
+            "test".into(),
+            project_root.clone(),
+            project_root.clone(),
+        );
+
+        let context = ProjectContext {
+            project,
+            branch: "main".into(),
+            commit: None,
+        };
+
+        let storage = Storage::new(temp.path().join("storage"));
+
+        let manager = WorkspaceManager::new(storage, FakeGitProvider::new(vec![]));
+
+        manager.create(&context, "search", None).unwrap();
+        manager.create(&context, "payment", None).unwrap();
+        manager.create(&context, "login", None).unwrap();
+
+        let list = manager.list(&context).unwrap();
+
+        assert_eq!(list.len(), 3);
+        assert_eq!(list[0].name, "login");
+        assert_eq!(list[1].name, "payment");
+        assert_eq!(list[2].name, "search");
+    }
+
+    #[test]
+    fn status_returns_first_workspace() {
+        let temp = tempdir().unwrap();
+
+        let project_root = temp.path().join("project");
+        fs::create_dir_all(project_root.join(".git")).unwrap();
+
+        let project = Project::new(
+            "test".into(),
+            "test".into(),
+            project_root.clone(),
+            project_root.clone(),
+        );
+
+        let context = ProjectContext {
+            project,
+            branch: "main".into(),
+            commit: None,
+        };
+
+        let storage = Storage::new(temp.path().join("storage"));
+
+        let manager = WorkspaceManager::new(storage, FakeGitProvider::new(vec![]));
+
+        manager.create(&context, "payment", None).unwrap();
+
+        let workspace = manager
+            .status(&context)
+            .unwrap()
+            .expect("workspace should exist");
+
+        assert_eq!(workspace.name, "payment");
     }
 }
