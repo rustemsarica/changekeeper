@@ -18,7 +18,7 @@ pub fn run() -> Result<()> {
     match cli.command {
         Command::Save { name, description } => save::execute(&name, description),
 
-        Command::Resume { name } => resume::execute(name),
+        Command::Resume { workspace } => resume::execute(workspace),
 
         Command::List => list::execute(),
 

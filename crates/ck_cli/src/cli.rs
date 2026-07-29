@@ -18,10 +18,6 @@ pub enum Command {
         description: Option<String>,
     },
 
-    Resume {
-        name: Option<String>,
-    },
-
     List,
 
     Status,
@@ -40,6 +36,10 @@ pub enum Command {
     },
 
     Park {
+        workspace: String,
+    },
+
+    Resume {
         workspace: String,
     },
 }

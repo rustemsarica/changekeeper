@@ -1,5 +1,13 @@
 use anyhow::Result;
 
-pub fn execute(_name: Option<String>,) -> Result<()> {
-    todo!()
+use crate::app::App;
+
+pub fn execute(workspace: String) -> Result<()> {
+    let app = App::new()?;
+
+    app.resume(&workspace)?;
+
+    println!("Workspace '{}' resumed.", workspace);
+
+    Ok(())
 }

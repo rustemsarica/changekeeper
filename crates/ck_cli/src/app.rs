@@ -45,4 +45,8 @@ impl App {
         self.workspace_manager
             .park_workspace(&self.context, workspace)
     }
+    pub fn resume(&self, workspace: &str) -> anyhow::Result<()> {
+        self.workspace_manager
+            .resume_workspace(&self.context, workspace)
+    }
 }
