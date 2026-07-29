@@ -41,4 +41,8 @@ impl App {
     pub fn history(&self, workspace: &str) -> anyhow::Result<Vec<ck_models::Snapshot>> {
         self.workspace_manager.history(&self.context, workspace)
     }
+    pub fn park(&self, workspace: &str) -> anyhow::Result<()> {
+        self.workspace_manager
+            .park_workspace(&self.context, workspace)
+    }
 }

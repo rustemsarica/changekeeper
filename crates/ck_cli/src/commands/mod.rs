@@ -5,6 +5,7 @@ mod resume;
 mod save;
 mod status;
 mod history;
+mod park;
 
 use anyhow::Result;
 use clap::Parser;
@@ -27,6 +28,8 @@ pub fn run() -> Result<()> {
 
         Command::Remove { name } => remove::execute(name),
 
-        Command::History { workspace } => history::execute(workspace)
+        Command::History { workspace } => history::execute(workspace),
+
+        Command::Park { workspace } => park::execute(workspace)
     }
 }

@@ -37,5 +37,9 @@ pub enum Command {
 
     History {
         workspace: String,
-    }
+    },
+
+    Park {
+        workspace: String,
+    },
 }

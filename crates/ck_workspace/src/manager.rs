@@ -59,7 +59,7 @@ impl<G: GitProvider> WorkspaceManager<G> {
         Ok(workspace)
     }
 
-    pub fn park(&self, context: &ProjectContext, workspace: &mut Workspace) -> Result<()> {
+    fn park(&self, context: &ProjectContext, workspace: &mut Workspace) -> Result<()> {
         let files = self.git.changed_files()?;
 
         if files.is_empty() {
@@ -112,8 +112,6 @@ impl<G: GitProvider> WorkspaceManager<G> {
 
             std::fs::write(&base, head_content)?;
         }
-
-        self.storage.save_workspace(&context.project, workspace)?;
 
         Ok(())
     }
@@ -214,6 +212,16 @@ impl<G: GitProvider> WorkspaceManager<G> {
         self.storage.list_snapshots(&context.project, &workspace)
     }
 
+    pub fn park_workspace(&self, context: &ProjectContext, workspace: &str) -> Result<()> {
+        let mut workspace = self.storage.load_workspace(&context.project, workspace)?;
+
+        self.park(context, &mut workspace)?;
+
+        self.storage.save_workspace(&context.project, &workspace)?;
+
+        Ok(())
+    }
+
     fn merge_resume(&self, context: &ProjectContext, workspace: &Workspace) -> Result<()> {
         let snapshot =
             self.storage
@@ -297,9 +305,17 @@ mod tests {
         let storage = Storage::new(temp.path().join("storage"));
 
         let manager = WorkspaceManager::new(storage, FakeGitProvider::new(vec!["test.txt".into()]));
-        let mut workspace = manager.create(&context, "payment", None).unwrap();
+        let workspace = manager.create(&context, "payment", None).unwrap();
 
-        manager.park(&context, &mut workspace).unwrap();
+        manager
+            .storage
+            .save_workspace(&context.project, &workspace)
+            .unwrap();
+        manager.park_workspace(&context, "payment").unwrap();
+        let workspace = manager
+            .storage
+            .load_workspace(&context.project, "payment")
+            .unwrap();
 
         assert_eq!(workspace.current_snapshot, 1);
 
@@ -388,15 +404,31 @@ mod tests {
 
         let manager = WorkspaceManager::new(storage, FakeGitProvider::new(vec!["test.txt".into()]));
 
-        let mut workspace = manager.create(&context, "payment", None).unwrap();
+        let workspace = manager.create(&context, "payment", None).unwrap();
 
-        manager.park(&context, &mut workspace).unwrap();
+        manager
+            .storage
+            .save_workspace(&context.project, &workspace)
+            .unwrap();
+        manager.park_workspace(&context, "payment").unwrap();
+        let workspace = manager
+            .storage
+            .load_workspace(&context.project, "payment")
+            .unwrap();
 
         assert_eq!(workspace.current_snapshot, 1);
 
         fs::write(project_root.join("test.txt"), "v2").unwrap();
 
-        manager.park(&context, &mut workspace).unwrap();
+        manager
+            .storage
+            .save_workspace(&context.project, &workspace)
+            .unwrap();
+        manager.park_workspace(&context, "payment").unwrap();
+        let workspace = manager
+            .storage
+            .load_workspace(&context.project, "payment")
+            .unwrap();
 
         assert_eq!(workspace.current_snapshot, 2);
 
@@ -647,15 +679,13 @@ mod tests {
 
         let manager = WorkspaceManager::new(storage, FakeGitProvider::new(vec!["test.txt".into()]));
 
-        let mut workspace = Workspace::new("payment", "main");
+        let workspace = Workspace::new("payment", "main");
 
         manager
             .storage
             .save_workspace(&context.project, &workspace)
             .unwrap();
-
-        manager.park(&context, &mut workspace).unwrap();
-        manager.park(&context, &mut workspace).unwrap();
+        manager.park_workspace(&context, "payment").unwrap();
 
         let history = manager.history(&context, "payment").unwrap();
 
