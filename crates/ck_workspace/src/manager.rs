@@ -116,7 +116,7 @@ impl<G: GitProvider> WorkspaceManager<G> {
         Ok(())
     }
 
-    pub fn resume(&self, context: &ProjectContext, workspace: &Workspace) -> Result<()> {
+    fn resume(&self, context: &ProjectContext, workspace: &Workspace) -> Result<()> {
         let dirty = !self.git.is_clean()?;
 
         if dirty {
@@ -220,6 +220,12 @@ impl<G: GitProvider> WorkspaceManager<G> {
         self.storage.save_workspace(&context.project, &workspace)?;
 
         Ok(())
+    }
+
+    pub fn resume_workspace(&self, context: &ProjectContext, workspace: &str) -> Result<()> {
+        let workspace = self.storage.load_workspace(&context.project, workspace)?;
+
+        self.resume(context, &workspace)
     }
 
     fn merge_resume(&self, context: &ProjectContext, workspace: &Workspace) -> Result<()> {
@@ -685,6 +691,7 @@ mod tests {
             .storage
             .save_workspace(&context.project, &workspace)
             .unwrap();
+        manager.park_workspace(&context, "payment").unwrap();
         manager.park_workspace(&context, "payment").unwrap();
 
         let history = manager.history(&context, "payment").unwrap();
