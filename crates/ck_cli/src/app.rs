@@ -30,4 +30,13 @@ impl App {
     pub fn list(&self) -> anyhow::Result<Vec<ck_models::Workspace>> {
         self.workspace_manager.list(&self.context)
     }
+    pub fn status(&self) -> anyhow::Result<Option<ck_models::Workspace>> {
+        self.workspace_manager.status(&self.context)
+    }
+    pub fn rename(&self, old: &str, new: &str) -> anyhow::Result<()> {
+        self.workspace_manager.rename(&self.context, old, new)
+    }
+    pub fn remove(&self, name: &str) -> anyhow::Result<()> {
+        self.workspace_manager.remove(&self.context, name)
+    }
 }
