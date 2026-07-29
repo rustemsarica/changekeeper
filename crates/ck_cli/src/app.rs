@@ -1,0 +1,33 @@
+use anyhow::Result;
+
+use ck_context::ProjectContext;
+use ck_git::RealGitProvider;
+use ck_storage::Storage;
+use ck_workspace::WorkspaceManager;
+
+pub struct App {
+    pub context: ProjectContext,
+    pub workspace_manager: WorkspaceManager<RealGitProvider>,
+}
+
+impl App {
+    pub fn new() -> Result<Self> {
+        let context = ProjectContext::discover()?;
+
+        let storage = Storage::new(
+            dirs::home_dir()
+                .expect("home directory not found")
+                .join(".changekeeper"),
+        );
+
+        let workspace_manager = WorkspaceManager::new(storage, RealGitProvider);
+
+        Ok(Self {
+            context,
+            workspace_manager,
+        })
+    }
+    pub fn list(&self) -> anyhow::Result<Vec<ck_models::Workspace>> {
+        self.workspace_manager.list(&self.context)
+    }
+}

@@ -36,6 +36,28 @@ impl<G: GitProvider> WorkspaceManager<G> {
         Ok(workspace)
     }
 
+    pub fn save(
+        &self,
+        context: &ProjectContext,
+        name: &str,
+        description: Option<String>,
+    ) -> Result<Workspace> {
+        let mut workspace = if self.exists(context, name)? {
+            self.storage.load_workspace(&context.project, name)?
+        } else {
+            self.create(context, name, description)?
+        };
+
+        self.park(context, &mut workspace)?;
+
+        self.storage.save_workspace(&context.project, &workspace)?;
+
+        self.storage
+            .set_active_workspace(&context.project, Some(workspace.name.clone()))?;
+
+        Ok(workspace)
+    }
+
     pub fn park(&self, context: &ProjectContext, workspace: &mut Workspace) -> Result<()> {
         let files = self.git.changed_files()?;
 
@@ -50,6 +72,9 @@ impl<G: GitProvider> WorkspaceManager<G> {
 
         for file in files {
             let source = context.project.root.join(&file);
+            if !source.is_file() {
+                continue;
+            }
 
             let snapshot_dir = self
                 .storage
@@ -68,6 +93,9 @@ impl<G: GitProvider> WorkspaceManager<G> {
             }
 
             // current
+            println!("{:?}", source);
+            println!("{}", source.is_file());
+            println!("{}", source.is_dir());
             std::fs::copy(&source, &current)?;
 
             // base
@@ -511,5 +539,70 @@ mod tests {
             .expect("workspace should exist");
 
         assert_eq!(workspace.name, "payment");
+    }
+    #[test]
+    fn save_creates_workspace_if_missing() {
+        let temp = tempdir().unwrap();
+
+        let project_root = temp.path().join("project");
+        fs::create_dir_all(project_root.join(".git")).unwrap();
+
+        fs::write(project_root.join("test.txt"), "hello").unwrap();
+
+        let project = Project::new(
+            "test".into(),
+            "test".into(),
+            project_root.clone(),
+            project_root.clone(),
+        );
+
+        let context = ProjectContext {
+            project,
+            branch: "main".into(),
+            commit: None,
+        };
+
+        let storage = Storage::new(temp.path().join("storage"));
+
+        let manager = WorkspaceManager::new(storage, FakeGitProvider::new(vec!["test.txt".into()]));
+
+        let workspace = manager.save(&context, "payment", None).unwrap();
+
+        assert_eq!(workspace.name, "payment");
+        assert_eq!(workspace.current_snapshot, 1);
+
+        assert!(manager.exists(&context, "payment").unwrap());
+    }
+    #[test]
+    fn save_updates_existing_workspace() {
+        let temp = tempdir().unwrap();
+
+        let project_root = temp.path().join("project");
+        fs::create_dir_all(project_root.join(".git")).unwrap();
+
+        fs::write(project_root.join("test.txt"), "hello").unwrap();
+
+        let project = Project::new(
+            "test".into(),
+            "test".into(),
+            project_root.clone(),
+            project_root.clone(),
+        );
+
+        let context = ProjectContext {
+            project,
+            branch: "main".into(),
+            commit: None,
+        };
+
+        let storage = Storage::new(temp.path().join("storage"));
+
+        let manager = WorkspaceManager::new(storage, FakeGitProvider::new(vec!["test.txt".into()]));
+
+        manager.save(&context, "payment", None).unwrap();
+
+        let workspace = manager.save(&context, "payment", None).unwrap();
+
+        assert_eq!(workspace.current_snapshot, 2);
     }
 }

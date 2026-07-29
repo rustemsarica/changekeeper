@@ -9,33 +9,6 @@ use std::{
 };
 
 impl Storage {
-    // pub fn list_workspaces(&self, project: &Project) -> Result<Vec<Workspace>> {
-    //     let root = self.project_dir(project).join("workspaces");
-
-    //     if !root.exists() {
-    //         return Ok(Vec::new());
-    //     }
-
-    //     let mut items = Vec::new();
-
-    //     for entry in fs::read_dir(root)? {
-    //         let entry = entry?;
-
-    //         if !entry.file_type()?.is_dir() {
-    //             continue;
-    //         }
-
-    //         let name = entry.file_name();
-    //         let name = name.to_string_lossy();
-
-    //         if let Ok(workspace) = self.load_workspace(project, &name) {
-    //             items.push(workspace);
-    //         }
-    //     }
-
-    //     Ok(items)
-    // }
-
     pub fn list_workspaces(&self, project: &Project) -> Result<Vec<Workspace>> {
         let root = self.project_dir(project).join("workspaces");
 
@@ -204,10 +177,12 @@ impl Storage {
 
         Ok(())
     }
+    
     pub fn snapshot_current_dir(&self, project: &Project, workspace: &Workspace) -> PathBuf {
         self.snapshot_dir(project, workspace, workspace.current_snapshot)
             .join("current")
     }
+    
     fn workspace_dir_by_name(&self, project: &Project, name: &str) -> PathBuf {
         self.project_dir(project).join("workspaces").join(name)
     }

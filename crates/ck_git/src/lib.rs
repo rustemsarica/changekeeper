@@ -16,6 +16,6 @@ pub use status::{
 pub use provider::{
     FakeGitProvider,
     GitProvider,
-    RealGitProvider,
+    RealGitProvider
 };
 pub use show::file_from_head;
