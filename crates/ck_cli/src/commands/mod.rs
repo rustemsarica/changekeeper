@@ -33,6 +33,6 @@ pub fn run() -> Result<()> {
 
         Command::Park { workspace, message } => park::execute(workspace, message),
 
-        Command::Use { workspace } => use_workspace::execute(workspace)
+        Command::Use { workspace } => use_workspace::execute(workspace),
     }
 }

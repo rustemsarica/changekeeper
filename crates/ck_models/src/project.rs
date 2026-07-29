@@ -26,17 +26,8 @@ impl Project {
 
 use chrono::{DateTime, Utc};
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct ProjectMetadata {
     pub active_workspace: Option<String>,
     pub last_used: Option<DateTime<Utc>>,
-}
-
-impl Default for ProjectMetadata {
-    fn default() -> Self {
-        Self {
-            active_workspace: None,
-            last_used: None,
-        }
-    }
 }

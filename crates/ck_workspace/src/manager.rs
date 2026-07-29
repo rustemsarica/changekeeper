@@ -276,7 +276,7 @@ impl<G: GitProvider> WorkspaceManager<G> {
     }
 
     pub fn use_workspace(&self, context: &ProjectContext, name: &str) -> Result<()> {
-        if !self.exists(&context, name).is_ok() {
+        if self.exists(context, name).is_err() {
             anyhow::bail!("Workspace '{}' not found.", name);
         }
 

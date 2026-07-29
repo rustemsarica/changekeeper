@@ -270,7 +270,6 @@ impl Storage {
     fn workspace_dir_by_name(&self, project: &Project, name: &str) -> PathBuf {
         self.project_dir(project).join("workspaces").join(name)
     }
-
 }
 #[cfg(test)]
 mod snapshot_tests {
