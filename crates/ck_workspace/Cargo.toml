@@ -1,0 +1,20 @@
+[package]
+name = "ck_workspace"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+anyhow.workspace = true
+walkdir.workspace = true
+chrono.workspace = true
+
+ck_context = { path = "../ck_context" }
+ck_models = { path = "../ck_models" }
+ck_storage = { path = "../ck_storage" }
+ck_git = { path = "../ck_git" }
+ck_merge = { path = "../ck_merge" }
+ck_config = { path = "../ck_config" }
+
+[dev-dependencies]
+tempfile.workspace = true

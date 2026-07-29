@@ -1,0 +1,30 @@
+use serde::{Deserialize, Serialize};
+use std::path::PathBuf;
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct Project {
+    pub id: String,
+    pub name: String,
+    pub root: PathBuf,
+    pub git_root: PathBuf,
+    pub git_remote: Option<String>,
+    pub active_workspace: Option<String>,
+}
+
+impl Project {
+    pub fn new(
+        id: String,
+        name: String,
+        root: PathBuf,
+        git_root: PathBuf,
+    ) -> Self {
+        Self {
+            id,
+            name,
+            root,
+            git_root,
+            git_remote: None,
+            active_workspace: None,
+        }
+    }
+}
