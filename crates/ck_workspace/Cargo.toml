@@ -15,6 +15,7 @@ ck_storage = { path = "../ck_storage" }
 ck_git = { path = "../ck_git" }
 ck_merge = { path = "../ck_merge" }
 ck_config = { path = "../ck_config" }
+ck_diff = { path = "../ck_diff" }
 
 [dev-dependencies]
 tempfile.workspace = true

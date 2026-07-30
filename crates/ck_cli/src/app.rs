@@ -1,4 +1,5 @@
 use anyhow::Result;
+use anyhow::anyhow;
 
 use ck_context::ProjectContext;
 use ck_git::RealGitProvider;
@@ -40,16 +41,16 @@ impl App {
         self.workspace_manager.remove(&self.context, name)
     }
     pub fn history(&self, workspace: Option<&str>) -> anyhow::Result<Vec<ck_models::Snapshot>> {
-        let workspace = self.resolve_workspace(workspace)?;
+        let workspace = self.resolve_workspace_name(workspace)?;
         self.workspace_manager.history(&self.context, &workspace)
     }
     pub fn park(&self, workspace: Option<&str>, message: Option<String>) -> anyhow::Result<()> {
-        let workspace = self.resolve_workspace(workspace)?;
+        let workspace = self.resolve_workspace_name(workspace)?;
         self.workspace_manager
             .park_workspace(&self.context, &workspace, message)
     }
     pub fn resume(&self, workspace: Option<&str>) -> anyhow::Result<()> {
-        let workspace = self.resolve_workspace(workspace)?;
+        let workspace = self.resolve_workspace_name(workspace)?;
         self.workspace_manager
             .resume_workspace(&self.context, &workspace)
     }
@@ -60,7 +61,7 @@ impl App {
     pub fn active_workspace(&self) -> anyhow::Result<Option<Workspace>> {
         self.workspace_manager.active_workspace(&self.context)
     }
-    pub(crate) fn resolve_workspace(&self, workspace: Option<&str>) -> Result<String> {
+    pub(crate) fn resolve_workspace_name(&self, workspace: Option<&str>) -> Result<String> {
         if let Some(workspace) = workspace {
             return Ok(workspace.to_string());
         }
@@ -70,5 +71,22 @@ impl App {
         };
 
         Ok(active.name)
+    }
+    fn resolve_workspace(&self, workspace: Option<&str>) -> anyhow::Result<Workspace> {
+        if let Some(name) = workspace {
+            return Ok(self.workspace_manager.load_workspace(&self.context, name)?);
+        }
+
+        Ok(self
+            .workspace_manager
+            .active_workspace(&self.context)?
+            .ok_or_else(|| anyhow!("No active workspace"))?)
+    }
+    pub fn diff(&self, workspace: Option<&str>) -> anyhow::Result<ck_diff::DiffResult> {
+        let workspace = self.resolve_workspace(workspace)?;
+
+        self.workspace_manager
+            .diff(&self.context, &workspace)
+            .map_err(Into::into)
     }
 }

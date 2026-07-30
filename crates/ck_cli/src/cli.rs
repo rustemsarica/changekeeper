@@ -49,4 +49,8 @@ pub enum Command {
     Use {
         workspace: String,
     },
+
+    Diff {
+        workspace: Option<String>,
+    },
 }

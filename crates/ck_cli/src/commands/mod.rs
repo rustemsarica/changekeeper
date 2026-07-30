@@ -7,6 +7,7 @@ mod resume;
 mod save;
 mod status;
 mod use_workspace;
+mod diff;
 
 use anyhow::Result;
 use clap::Parser;
@@ -34,5 +35,7 @@ pub fn run() -> Result<()> {
         Command::Park { workspace, message } => park::execute(workspace, message),
 
         Command::Use { workspace } => use_workspace::execute(workspace),
+
+        Command::Diff { workspace } => diff::execute(workspace.as_deref())
     }
 }

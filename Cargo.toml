@@ -8,7 +8,7 @@ members = [
     "crates/ck_merge",
     "crates/ck_git",
     "crates/ck_config",
-    "crates/ck_models", "crates/ck_context",
+    "crates/ck_models", "crates/ck_context", "crates/ck_diff",
 ]
 
 [workspace.package]

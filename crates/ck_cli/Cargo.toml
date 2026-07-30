@@ -14,3 +14,4 @@ ck_context = { path = "../ck_context" }
 ck_storage = { path = "../ck_storage" }
 ck_workspace = { path = "../ck_workspace" }
 ck_models = { path = "../ck_models" }
+ck_diff = { path = "../ck_diff" }

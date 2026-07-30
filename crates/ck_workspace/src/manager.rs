@@ -1,6 +1,7 @@
 use anyhow::Ok;
 use anyhow::Result;
 use ck_context::ProjectContext;
+use ck_diff::DiffResult;
 use ck_git::GitProvider;
 use ck_git::file_from_head;
 use ck_models::Workspace;
@@ -209,6 +210,10 @@ impl<G: GitProvider> WorkspaceManager<G> {
         self.storage.list_snapshots(&context.project, &workspace)
     }
 
+    pub fn load_workspace(&self, context: &ProjectContext, name: &str) -> Result<Workspace> {
+        Ok(self.storage.load_workspace(&context.project, name)?)
+    }
+
     pub fn park_workspace(
         &self,
         context: &ProjectContext,
@@ -294,6 +299,16 @@ impl<G: GitProvider> WorkspaceManager<G> {
         let workspace = self.storage.load_workspace(&context.project, &name)?;
 
         Ok(Some(workspace))
+    }
+
+    pub fn diff(&self, context: &ProjectContext, workspace: &Workspace) -> Result<DiffResult> {
+        let left = self
+            .storage
+            .snapshot_current_dir(&context.project, workspace);
+
+        let right = &context.project.root;
+
+        Ok(ck_diff::diff_dirs(left, right)?)
     }
 }
 
@@ -721,5 +736,53 @@ mod tests {
         assert_eq!(history.len(), 2);
         assert_eq!(history[0].id, 1);
         assert_eq!(history[1].id, 2);
+    }
+
+    #[test]
+    fn diff_detects_workspace_changes() {
+        let temp = tempfile::tempdir().unwrap();
+
+        let project = Project {
+            id: "000".to_owned(),
+            name: "test".to_owned(),
+            root: temp.path().join("project"),
+            git_root: "".into(),
+            git_remote: None,
+            active_workspace: None,
+        };
+
+        std::fs::create_dir_all(&project.root).unwrap();
+
+        let context = ProjectContext {
+            project,
+            branch: "tesst".to_owned(),
+            commit: None,
+        };
+
+        std::fs::write(context.project.root.join("test.txt"), "v1").unwrap();
+
+        let storage = Storage::new(temp.path().join(".ck"));
+
+        let manager = WorkspaceManager::new(storage, FakeGitProvider::new(vec![]));
+
+        let mut workspace = manager.save(&context, "payment", None).unwrap();
+        println!("{}", workspace.current_snapshot);
+
+        std::fs::write(context.project.root.join("test.txt"), "v2").unwrap();
+
+        manager.park(&context, &mut workspace, None).unwrap();
+        
+        println!(
+            "{:?}",
+            manager
+                .storage
+                .snapshot_current_dir(&context.project, &workspace)
+        );
+
+        std::fs::write(context.project.root.join("test.txt"), "v3").unwrap();
+
+        let diff = manager.diff(&context, &workspace).unwrap();
+
+        assert_eq!(diff.files.len(), 1);
     }
 }
