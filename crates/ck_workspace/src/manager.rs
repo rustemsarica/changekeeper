@@ -81,6 +81,9 @@ impl<G: GitProvider> WorkspaceManager<G> {
             .create_snapshot_with_metadata(&context.project, workspace, &snapshot)?;
 
         for file in files {
+            if !crate::ignore::should_track(&file) {
+                continue;
+            }
             let source = context.project.root.join(&file);
             if !source.is_file() {
                 continue;
@@ -141,6 +144,9 @@ impl<G: GitProvider> WorkspaceManager<G> {
             }
 
             let relative = entry.path().strip_prefix(&current)?;
+            if !crate::ignore::should_track(relative) {
+                continue;
+            }
 
             let target = context.project.root.join(relative);
 
@@ -253,6 +259,9 @@ impl<G: GitProvider> WorkspaceManager<G> {
             }
 
             let relative = entry.path().strip_prefix(&current)?;
+            if !crate::ignore::should_track(relative) {
+                continue;
+            }
 
             let base_file = base.join(relative);
 
@@ -311,7 +320,7 @@ impl<G: GitProvider> WorkspaceManager<G> {
 
         let right = &context.project.root;
 
-        Ok(ck_diff::diff_dirs(left, right)?)
+        Ok(ck_diff::diff_dirs(left, right,crate::ignore::should_track)?)
     }
 }
 
