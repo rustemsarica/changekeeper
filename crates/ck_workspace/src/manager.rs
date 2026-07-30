@@ -110,7 +110,10 @@ impl<G: GitProvider> WorkspaceManager<G> {
 
             std::fs::write(&base, head_content)?;
         }
+        workspace.current_snapshot = snapshot_id;
+        workspace.updated_at = chrono::Utc::now();
 
+        self.storage.save_workspace(&context.project, workspace)?;
         Ok(())
     }
 
@@ -763,7 +766,7 @@ mod tests {
 
         let storage = Storage::new(temp.path().join(".ck"));
 
-        let manager = WorkspaceManager::new(storage, FakeGitProvider::new(vec![]));
+        let manager = WorkspaceManager::new(storage, FakeGitProvider::new(vec!["test.txt".into()]));
 
         let mut workspace = manager.save(&context, "payment", None).unwrap();
         println!("{}", workspace.current_snapshot);
@@ -771,7 +774,7 @@ mod tests {
         std::fs::write(context.project.root.join("test.txt"), "v2").unwrap();
 
         manager.park(&context, &mut workspace, None).unwrap();
-        
+
         println!(
             "{:?}",
             manager
